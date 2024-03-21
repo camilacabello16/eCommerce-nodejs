@@ -3,6 +3,7 @@
 //helmet: anti hacker
 //compression: optimize bang thong
 
+require('dotenv').config();
 const compression = require('compression');
 const express = require('express');
 const { default: helmet } = require('helmet');
@@ -15,13 +16,13 @@ app.use(helmet());
 app.use(compression());
 
 //init db
+require('./dbs/init.mongodb');
+// const { checkOverload } = require('./helpers/check.connect');
+// checkOverload();
 
 //init routes
-app.get('/', (req, res, next) => {
-    return res.status(200).json({
-        msg: 'Hello world'
-    });
-})
+const router = require('./routes');
+app.use(router);
 
 //handle error
 
