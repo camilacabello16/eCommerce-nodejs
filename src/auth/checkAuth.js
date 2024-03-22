@@ -1,6 +1,6 @@
 'use strict'
 
-const { findById } = require("../models/apikey.model");
+const { findApiKeyById } = require("../services/apikey.service");
 
 const HEADER = {
     API_KEY: 'x-api-key',
@@ -17,7 +17,7 @@ const checkApiKey = async (req, res, next) => {
         }
 
         //check exist api key
-        const existKey = await findById(key);
+        const existKey = await findApiKeyById(key);
         if (!existKey) {
             return res.status(403).json({
                 message: 'Forbidden Error'

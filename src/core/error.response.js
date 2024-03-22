@@ -13,7 +13,7 @@ const StatusCodeReason = {
 }
 
 class ErrorResponse extends Error {
-    constructor(status) {
+    constructor(message, status) {
         super(message);
         this.status = status;
     }
