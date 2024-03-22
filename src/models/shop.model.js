@@ -27,7 +27,7 @@ var shopSchema = new mongoose.Schema({
         default: 'inactive'
     },
     verify: {
-        type: mongoose.Schema.Boolean,
+        type: mongoose.Schema.Types.Boolean,
         default: false
     },
     roles: {
