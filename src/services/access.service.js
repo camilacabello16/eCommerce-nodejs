@@ -18,6 +18,38 @@ const RoleShop = {
 }
 
 class AccessService {
+    static handleRefreshTokenV2 = async (keyStore, user, refreshToken) => {
+        if (keyStore.refreshTokensUsed.includes(refreshToken)) {
+            //delete key
+            await KeyTokenService.deleteKeyByUserId(user.userId);
+            throw new ForbiddenError('Something wrong! Please login again');
+        }
+
+        //exist token not exist - create new
+        if (keyStore.refreshToken !== refreshToken) throw new ForbiddenError('Shop not registered');
+
+        const foundShop = await findShopByEmail({ email: user.email });
+        if (!foundShop) throw new ForbiddenError('Shop not registered');
+
+        //create new key
+        const tokens = await createTokenPair({ userId: foundShop._id, email: foundShop.email }, keyStore.publicKey, keyStore.privateKey);
+
+        //update to key model
+        await keyStore.updateOne({
+            $set: {
+                refreshToken: tokens.refreshToken
+            },
+            $addToSet: {
+                refreshTokensUsed: refreshToken
+            }
+        });
+
+        return {
+            shop: user,
+            tokens
+        }
+    }
+
     static handleRefreshToken = async (refreshToken) => {
         const existRefreshToken = await KeyTokenService.getKeyByRefreshTokenUsed(refreshToken);
         //if exist token - delete all token
