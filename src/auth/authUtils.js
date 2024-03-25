@@ -10,6 +10,7 @@ const HEADER = {
 const JWT = require('jsonwebtoken');
 const { asyncHandler } = require('./checkAuth');
 const KeyTokenService = require('../services/keyToken.service');
+const { NotAuthorError } = require('../core/error.response');
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
     try {
