@@ -2,7 +2,8 @@
 
 const { BadRequestError } = require("../core/error.response");
 const { product, clothing } = require("../models/product.model");
-const { getProduct, publishProduct, unPublishProduct, searchProduct, getAllProduct, getProductById } = require("../models/repositories/product.repo");
+const { getProduct, publishProduct, unPublishProduct, searchProduct, getAllProduct, getProductById, updateProductById } = require("../models/repositories/product.repo");
+const { removeNullFieldInObject } = require("../utils");
 
 class ProductFactory {
     static productRegistry = {}; //key - class
@@ -47,6 +48,13 @@ class ProductFactory {
     static getProductById = async ({ product_id }) => {
         return await getProductById({ product_id, unSelect: ['createdAt'] });
     }
+
+    static updateProduct = async (type, payload) => {
+        const productClass = this.productRegistry[type];
+        if (!productClass) throw new BadRequestError('Invalid Type ' + type);
+
+        return new productClass(payload).updateProduct(payload.product_id);
+    }
 }
 
 class Product {
@@ -61,8 +69,12 @@ class Product {
         this.product_attributes = product_attributes;
         console.log(this);
     }
-    async createProduct() {
-        return await product.create({ ...this, _id: product._id });
+    async createProduct(product_id) {
+        return await product.create({ ...this, _id: product_id });
+    }
+
+    async updateProduct(product_id, payload) {
+        return await updateProductById({ product_id, payload, model: product });
     }
 }
 
@@ -74,10 +86,25 @@ class Clothing extends Product {
         });
         if (!newDetail) throw new BadRequestError('Create Error');
 
-        const newProduct = super.createProduct({ ...this, _id: newDetail._id });
+        const newProduct = super.createProduct(newDetail._id);
         if (!newProduct) throw new BadRequestError('Create Error');
 
         return newProduct;
+    }
+
+    async updateProduct(product_id) {
+        //remove null values
+        console.log("[1]", this);
+        const objectParams = removeNullFieldInObject(this);
+        console.log("[2]", objectParams);
+        if (objectParams.product_attributes) {
+            //update child
+            await updateProductById({ product_id, payload: objectParams.product_attributes, model: clothing });
+        }
+
+        //update parent
+        const updatedProduct = await super.updateProduct(product_id, objectParams);
+        return updatedProduct;
     }
 }
 

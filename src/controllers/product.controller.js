@@ -68,6 +68,14 @@ class ProductController {
             })
         }).send(res);
     }
+
+    updateProduct = async (req, res) => {
+        req.body.product_id = req.params.product_id;
+        new Ok({
+            message: 'Update Product Success!',
+            metadata: await ProductFactory.updateProduct(req.body.product_type, req.body)
+        }).send(res);
+    }
 }
 
 module.exports = new ProductController();

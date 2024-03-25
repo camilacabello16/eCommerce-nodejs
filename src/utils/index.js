@@ -22,9 +22,28 @@ const getUnSelectData = (select = []) => {
     return Object.fromEntries(select.map(el => [el, 0]));
 }
 
+const removeNullFieldInObject = (object) => {
+    Object
+        .entries(object)
+        .forEach(([k, v]) => {
+            if (v && typeof v === 'object') {
+                removeNullFieldInObject(v);
+            }
+            if (v && typeof v === 'object' && !Object.keys(v).length || v === null || v === undefined) {
+                if (Array.isArray(object)) {
+                    object.splice(k, 1);
+                } else {
+                    delete object[k];
+                }
+            }
+        });
+    return object;
+}
+
 module.exports = {
     getInfoData,
     createPublicAndPrivateKey,
     getSelectData,
-    getUnSelectData
+    getUnSelectData,
+    removeNullFieldInObject
 }
