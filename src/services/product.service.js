@@ -2,6 +2,7 @@
 
 const { BadRequestError } = require("../core/error.response");
 const { product, clothing } = require("../models/product.model");
+const { createInventory } = require("../models/repositories/inventory.repo");
 const { getProduct, publishProduct, unPublishProduct, searchProduct, getAllProduct, getProductById, updateProductById } = require("../models/repositories/product.repo");
 const { removeNullFieldInObject } = require("../utils");
 
@@ -67,10 +68,13 @@ class Product {
         this.product_type = product_type;
         this.product_shop = product_shop;
         this.product_attributes = product_attributes;
-        console.log(this);
     }
     async createProduct(product_id) {
-        return await product.create({ ...this, _id: product_id });
+        const newProduct = await product.create({ ...this, _id: product_id });
+        if (newProduct) {
+            await createInventory({ productId: product_id, stock: newProduct.product_quantity });
+        }
+        return newProduct;
     }
 
     async updateProduct(product_id, payload) {
@@ -94,9 +98,7 @@ class Clothing extends Product {
 
     async updateProduct(product_id) {
         //remove null values
-        console.log("[1]", this);
         const objectParams = removeNullFieldInObject(this);
-        console.log("[2]", objectParams);
         if (objectParams.product_attributes) {
             //update child
             await updateProductById({ product_id, payload: objectParams.product_attributes, model: clothing });
