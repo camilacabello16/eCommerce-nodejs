@@ -10,6 +10,7 @@ var discountSchema = new mongoose.Schema({
     discount_name: { type: String, required: true },
     discount_description: { type: String, required: true },
     discount_type: { type: String, default: 'fixed_amount' },
+    discount_value: { type: Number, default: 0 },
     discount_code: { type: String, required: true },
     discount_start_date: { type: Date, required: true },
     discount_end_date: { type: Date, required: true },
