@@ -29,7 +29,12 @@ const updateCartQuantity = async ({ userId, product }) => {
     return await cartModel.findOneAndUpdate(query, updateSet, options);
 }
 
+const findCartActive = async (cartId) => {
+    return await cartModel.findOne({ _id: cartId, cart_status: 'active' }).lean();
+}
+
 module.exports = {
     createCart,
-    updateCartQuantity
+    updateCartQuantity,
+    findCartActive
 }

@@ -28,6 +28,25 @@ class CartService {
         //cart exist and product in cart
         return await updateCartQuantity({ userId, product });
     }
+
+    static async deleteProductInCart({ userId, productId }) {
+        const query = { cart_userId: userId, cart_status: 'active' },
+            updateSet = {
+                $pull: {
+                    cart_products: {
+                        productId
+                    }
+                }
+            };
+
+        return await cartModel.updateOne(query, updateSet);
+    }
+
+    static async getListProductInCart({ userId }) {
+        return await cart.findOne({
+            cart_userId: userId
+        }).lean();
+    }
 }
 
 module.exports = CartService;

@@ -71,6 +71,19 @@ const updateProductById = async ({ product_id, payload, model, isNew = true }) =
     return await model.findByIdAndUpdate(product_id, payload, { new: isNew });
 }
 
+const getAvailableProduct = async (products) => {
+    return await Promise.all(products.map(async product => {
+        const foundProduct = await getProductById({ product_id: product.productId, unSelect: [] });
+        if (foundProduct) {
+            return {
+                price: foundProduct.product_price,
+                quantity: product.quantity,
+                productId: product.productId
+            }
+        }
+    }))
+}
+
 module.exports = {
     getProduct,
     publishProduct,
@@ -78,5 +91,6 @@ module.exports = {
     searchProduct,
     getAllProduct,
     getProductById,
-    updateProductById
+    updateProductById,
+    getAvailableProduct
 }
